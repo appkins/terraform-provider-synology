@@ -17,6 +17,8 @@ import (
 	"strings"
 	"text/template"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/iancoleman/strcase"
 )
 
@@ -184,7 +186,7 @@ func cleanName(name string, reps []replacement) string {
 }
 
 func usage() {
-	fmt.Printf("Usage: %s [OPTIONS] version\n", path.Base(os.Args[0]))
+	log.Infof("Usage: %s [OPTIONS] version\n", path.Base(os.Args[0]))
 	flag.PrintDefaults()
 }
 
@@ -251,7 +253,7 @@ func main() {
 		fieldsFilePath := filepath.Join(fieldsDir, fieldsFile.Name())
 		b, err := os.ReadFile(fieldsFilePath)
 		if err != nil {
-			fmt.Printf("skipping file %s: %s", fieldsFile.Name(), err)
+			log.Infof("skipping file %s: %s", fieldsFile.Name(), err)
 			continue
 		}
 
@@ -371,7 +373,7 @@ func main() {
 
 		err = resource.processJSON(b)
 		if err != nil {
-			fmt.Printf("skipping file %s: %s", fieldsFile.Name(), err)
+			log.Infof("skipping file %s: %s", fieldsFile.Name(), err)
 			continue
 		}
 
@@ -484,7 +486,7 @@ func (r *Resource) fieldInfoFromValidation(name string, validation any) (*FieldI
 			}
 		}
 		if validation != "" && normalized != "" {
-			fmt.Printf("normalize %q to %q\n", validation, normalized)
+			log.Infof("normalize %q to %q\n", validation, normalized)
 		}
 
 		omitEmpty = omitEmpty || (!strings.Contains(validation, "^$") && !strings.HasSuffix(fieldName, "ID"))

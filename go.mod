@@ -1,5 +1,7 @@
 module github.com/appkins/terraform-provider-synology
 
+replace github.com/synology-community/synology-api => /Users/atkini01/src/synology-community/synology-api
+
 go 1.22.3
 
 require (
@@ -8,7 +10,13 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-testing v1.7.0
 	github.com/iancoleman/strcase v0.3.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/synology-community/synology-api v0.0.0-20240509203437-c30ab952872a
+)
+
+require (
+	google.golang.org/appengine v1.6.8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 )
 
 require (
@@ -59,9 +67,7 @@ require (
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	golang.org/x/tools v0.21.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240506185236-b8a5c65736ae // indirect
+	golang.org/x/tools v0.21.0 // indirect; indirect	google.golang.org/genproto/googleapis/rpc v0.0.0-20240506185236-b8a5c65736ae // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

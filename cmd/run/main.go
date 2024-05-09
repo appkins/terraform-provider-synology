@@ -1,20 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"mime/multipart"
-	"net/http"
 	"net/url"
-	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/google/go-querystring/query"
 	client "github.com/synology-community/synology-api/package"
-	"github.com/synology-community/synology-api/package/api"
-	"github.com/synology-community/synology-api/package/api/filestation"
 	"github.com/synology-community/synology-api/package/util/form"
 )
 
@@ -53,18 +46,22 @@ func tst() {
 	if res, err := form.Marshal(&c); err != nil {
 		log.Fatal(err)
 	} else {
-		log.Print(string(res))
+		log.Info(string(res))
 		// multipart.File
 	}
 
 	opt := Options{"foo", true, 2, []int{1, 2, 3}}
 	v, _ := query.Values(opt)
 	s := v.Encode() // will output: "q=foo&all=true&page=2"
-	fmt.Print(url.QueryUnescape(s))
+	log.Info(url.QueryUnescape(s))
 
 }
 
 func main() {
+
+	log.SetFormatter(&log.JSONFormatter{})
+
+	log.Info("Starting")
 
 	// tst()
 
@@ -80,29 +77,23 @@ func main() {
 		panic(err)
 	}
 
-	err = client.Login(user, password, "webui")
+	_, err = client.Login(user, password, "webui")
 
 	if err != nil {
 		panic(err)
 	}
 
-	if err := client.Upload("/data/foo/bar", &form.File{Name: "main.go", Content: "package main"}, true, true); err != nil {
-		panic(err)
-	}
-
-	infoRequest := filestation.NewFileStationInfoRequest(2)
-	infoResponse := filestation.FileStationInfoResponse{}
-
-	err = client.Get(infoRequest, &infoResponse)
+	_, err = client.FileStationAPI().Upload("/data/foo/bar", &form.File{Name: "main.go", Content: "package main"}, true, true)
 
 	if err != nil {
 		panic(err)
 	}
 
-	println(infoResponse.Hostname)
-	println(infoResponse.Supportsharing)
+	if _, err := client.FileStationAPI().Upload("/data/foo/bar", &form.File{Name: "main.go", Content: "package main"}, true, true); err != nil {
+		panic(err)
+	}
 
-	listGuestResp, err := client.ListGuests()
+	listGuestResp, err := client.VirtualizationAPI().ListGuests()
 
 	if err != nil {
 		panic(err)
@@ -117,22 +108,10 @@ func main() {
 	}
 
 	createFolder(client)
-
-	if err := Upload(client, host, mustOpen("main.go")); err != nil {
-		panic(err)
-	}
-}
-
-func mustOpen(f string) *os.File {
-	r, err := os.Open(f)
-	if err != nil {
-		panic(err)
-	}
-	return r
 }
 
 func createFolder(client client.SynologyClient) {
-	resp, err := client.CreateFolder("/data/foo", "bar", true)
+	resp, err := client.FileStationAPI().CreateFolder([]string{"/data/foo"}, []string{"bar"}, true)
 
 	if err != nil {
 		panic(err)
@@ -143,93 +122,4 @@ func createFolder(client client.SynologyClient) {
 		println(folder.Name)
 		println(folder.IsDir)
 	}
-}
-
-func Upload(client client.SynologyClient, host string, r io.Reader) error {
-	data := map[string]string{
-		"api":            "SYNO.FileStation.Upload",
-		"version":        "2",
-		"method":         "upload",
-		"path":           "/data/foo/bar",
-		"create_parents": "true",
-		"overwrite":      "true",
-	}
-
-	// Prepare a form that you will submit to that URL.
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
-
-	for key, val := range data {
-		w.WriteField(key, val)
-	}
-
-	if x, ok := r.(io.Closer); ok {
-		defer x.Close()
-	}
-
-	// Add an image file
-	if x, ok := r.(*os.File); ok {
-		if fw, err := w.CreateFormFile("file", x.Name()); err != nil {
-			return err
-		} else {
-			if _, err := io.Copy(fw, r); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Don't forget to close the multipart writer.
-	// If you don't close it, your request will be missing the terminating boundary.
-	w.Close()
-
-	u := url.URL{
-		Scheme: "http",
-		Host:   host,
-		Path:   "/webapi/entry.cgi",
-	}
-
-	// Now that you have a form, you can submit it to your handler.
-	req, err := http.NewRequest(http.MethodPost, u.String(), &b)
-	if err != nil {
-		return err
-	}
-
-	// file, err := os.ReadFile("main.go")
-	// if err != nil {
-	// 	return err
-	// }
-
-	// log.Print(req.FormValue("api"))
-
-	// Don't forget to set the content type, this will contain the boundary.
-	// req.Header.Set("Content-Disposition", `form-data; name="file"; filename="main.go"`)
-	// req.Header.Set("Content-Type", "application/octet-stream")
-	// req.Header.Set("Content-Length", fmt.Sprintf("%d", b.Len()))
-	//
-	// req.Form.Set("file", string(file))
-
-	// req.PostForm = url.Values{}
-
-	// req.PostForm.Set("api", string("SYNO.FileStation.Upload"))
-	// req.PostForm.Set("version", string("2"))
-	// req.PostForm.Set("method", string("upload"))
-
-	log.Print(req.URL.RequestURI())
-
-	var res = api.BaseResponse{}
-
-	// Submit the request
-	err = client.Do(req, &res)
-	if err != nil {
-		return err
-	}
-
-	// Check the response
-	if !res.Success() {
-		return fmt.Errorf("bad status: %s", res.GetError())
-	}
-
-	log.Print("Upload successful")
-
-	return nil
 }

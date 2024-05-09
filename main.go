@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/appkins/terraform-provider-synology/synology/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
