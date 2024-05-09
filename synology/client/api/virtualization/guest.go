@@ -36,3 +36,27 @@ type ListGuestResponse struct {
 func (r ListGuestResponse) ErrorSummaries() []api.ErrorSummary {
 	return []api.ErrorSummary{api.GlobalErrors}
 }
+
+type GetGuestRequest struct {
+	*api.ApiRequest
+
+	guestName string `form:"guest_name" url:"guest_name"`
+}
+
+func NewGetGuestRequest(name string) *GetGuestRequest {
+	base := api.NewRequest("SYNO.Virtualization.API.Guest", "get")
+
+	return &GetGuestRequest{
+		ApiRequest: base,
+		guestName:  name,
+	}
+}
+
+type GetGuestResponse struct {
+	api.BaseResponse
+	Guest
+}
+
+func (r GetGuestResponse) ErrorSummaries() []api.ErrorSummary {
+	return []api.ErrorSummary{api.GlobalErrors}
+}

@@ -21,7 +21,7 @@ func NewFolderResource() resource.Resource {
 }
 
 type FolderResource struct {
-	client client.Client
+	client client.SynologyClient
 }
 
 // FolderResourceModel describes the resource data model.

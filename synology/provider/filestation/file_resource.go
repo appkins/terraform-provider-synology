@@ -20,7 +20,7 @@ func NewFileResource() resource.Resource {
 }
 
 type FileResource struct {
-	client client.Client
+	client client.SynologyClient
 }
 
 // FileResourceModel describes the resource data model.

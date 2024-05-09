@@ -3,10 +3,10 @@ package filestation
 import "github.com/appkins/terraform-provider-synology/synology/client/api"
 
 type DeleteStartRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	Paths            []string `synology:"path"`
-	AccurateProgress bool     `synology:"accurate_progress"`
+	Paths            []string `form:"path" url:"path"`
+	AccurateProgress bool     `form:"accurate_progress" url:"accurate_progress"`
 }
 
 type DeleteStartResponse struct {
@@ -19,7 +19,7 @@ var _ api.Request = (*CreateFolderRequest)(nil)
 
 func NewDeleteStartRequest(paths []string, accurateProgress bool) *DeleteStartRequest {
 	return &DeleteStartRequest{
-		BaseRequest: api.BaseRequest{
+		ApiRequest: api.ApiRequest{
 			Version:   2,
 			APIName:   "SYNO.FileStation.Delete",
 			APIMethod: "start",
@@ -34,9 +34,9 @@ func (r DeleteStartRequest) ErrorSummaries() []api.ErrorSummary {
 }
 
 type DeleteStatusRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	TaskID string `synology:"taskid"`
+	TaskID string `form:"taskid" url:"taskid"`
 }
 
 type DeleteStatusResponse struct {
@@ -56,7 +56,7 @@ type DeleteStatusResponse struct {
 
 func NewDeleteStatusRequest(taskID string) *DeleteStatusRequest {
 	return &DeleteStatusRequest{
-		BaseRequest: api.BaseRequest{
+		ApiRequest: api.ApiRequest{
 			Version:   1,
 			APIName:   "SYNO.FileStation.Delete",
 			APIMethod: "status",

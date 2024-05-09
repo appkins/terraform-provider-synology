@@ -25,13 +25,12 @@ type ErrorDescriber interface {
 	ErrorSummaries() []ErrorSummary
 }
 
-// SynologyError defines a structure for error object returned by Synology API.
+// ApiError defines a structure for error object returned by Synology API.
 // It is a high-level error for a particular API family.
-type SynologyError struct {
-	Code    int
-	Summary string
-	// Errors is a collection of detailed errors for a concrete API request.
-	Errors []ErrorItem
+type ApiError struct {
+	Code    int         `json:"code,omitempty"`
+	Summary string      `json:"-"`
+	Errors  []ErrorItem `json:"-"`
 }
 
 // ErrorItem defines detailed request error.
@@ -45,10 +44,10 @@ type ErrorItem struct {
 type ErrorSummary map[int]string
 
 // ErrorFields defines extra fields for particular detailed error.
-type ErrorFields map[string]interface{}
+type ErrorFields map[string]any
 
 // Error satisfies error interface for SynologyError type.
-func (se SynologyError) Error() string {
+func (se ApiError) Error() string {
 	buf := strings.Builder{}
 	buf.WriteString(fmt.Sprintf("[%d] %s", se.Code, se.Summary))
 	if len(se.Errors) > 0 {
@@ -84,7 +83,7 @@ func DescribeError(code int, summaries ...ErrorSummary) string {
 
 // UnmarshalJSON fullfills Unmarshaler interface for JSON objects.
 func (ei *ErrorItem) UnmarshalJSON(b []byte) error {
-	fields := map[string]interface{}{}
+	fields := map[string]any{}
 	err := json.Unmarshal(b, &fields)
 	if err != nil {
 		return err

@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newClient() (Client, error) {
-	c, err := New("dev-synology:5001", true)
+func newClient() (SynologyClient, error) {
+	c, err := New("dev-form:5001", true)
 	if err != nil {
 		return nil, err
 	}
@@ -26,21 +26,21 @@ func newClient() (Client, error) {
 
 func TestMarshalURL(t *testing.T) {
 	type embeddedStruct struct {
-		EmbeddedString string `synology:"embedded_string"`
-		EmbeddedInt    int    `synology:"embedded_int"`
+		EmbeddedString string `form:"embedded_string" url:"embedded_string"`
+		EmbeddedInt    int    `form:"embedded_int" url:"embedded_int"`
 	}
 
 	testCases := []struct {
 		name     string
-		in       interface{}
+		in       any
 		expected url.Values
 	}{
 		{
 			name: "scalar types",
 			in: struct {
-				Name    string `synology:"name"`
-				ID      int    `synology:"id"`
-				Enabled bool   `synology:"enabled"`
+				Name    string `form:"name" url:"name"`
+				ID      int    `form:"id" url:"id"`
+				Enabled bool   `form:"enabled" url:"enabled"`
 			}{
 				Name:    "name value",
 				ID:      2,
@@ -55,8 +55,8 @@ func TestMarshalURL(t *testing.T) {
 		{
 			name: "slice types",
 			in: struct {
-				Names []string `synology:"names"`
-				IDs   []int    `synology:"ids"`
+				Names []string `form:"names" url:"names"`
+				IDs   []int    `form:"ids" url:"ids"`
 			}{
 				Names: []string{"value 1", "value 2"},
 				IDs:   []int{1, 2, 3},
@@ -70,7 +70,7 @@ func TestMarshalURL(t *testing.T) {
 			name: "embedded struct",
 			in: struct {
 				embeddedStruct
-				Name string `synology:"name"`
+				Name string `form:"name" url:"name"`
 			}{
 				embeddedStruct: embeddedStruct{
 					EmbeddedString: "my string",
@@ -87,8 +87,8 @@ func TestMarshalURL(t *testing.T) {
 		{
 			name: "unexported field without tag",
 			in: struct {
-				Name       string `synology:"name"`
-				ID         int    `synology:"id"`
+				Name       string `form:"name" url:"name"`
+				ID         int    `form:"id" url:"id"`
 				unexported string
 			}{
 				Name:       "name value",
@@ -103,9 +103,9 @@ func TestMarshalURL(t *testing.T) {
 		{
 			name: "unexported field with tag",
 			in: struct {
-				Name       string `synology:"name"`
-				ID         int    `synology:"id"`
-				unexported string `synology:"unexported"`
+				Name       string `form:"name" url:"name"`
+				ID         int    `form:"id" url:"id"`
+				unexported string `form:"unexported" url:"unexported"`
 			}{
 				Name:       "name value",
 				ID:         2,
@@ -136,16 +136,16 @@ func TestHandleErrors(t *testing.T) {
 
 	testCases := []struct {
 		name                string
-		response            api.GenericResponse
+		response            api.ApiResponse
 		responseKnownErrors []api.ErrorSummary
-		expected            api.SynologyError
+		expected            api.ApiError
 	}{
 		{
 			name: "global errors only",
-			response: api.GenericResponse{
+			response: api.ApiResponse{
 				Success: false,
 				Data:    nil,
-				Error: api.SynologyError{
+				Error: api.ApiError{
 					Code: 100,
 					Errors: []api.ErrorItem{
 						{Code: 101},
@@ -153,7 +153,7 @@ func TestHandleErrors(t *testing.T) {
 					},
 				},
 			},
-			expected: api.SynologyError{
+			expected: api.ApiError{
 				Code:    100,
 				Summary: "global error 100",
 				Errors: []api.ErrorItem{
@@ -171,10 +171,10 @@ func TestHandleErrors(t *testing.T) {
 		},
 		{
 			name: "response-specific error",
-			response: api.GenericResponse{
+			response: api.ApiResponse{
 				Success: false,
 				Data:    nil,
-				Error: api.SynologyError{
+				Error: api.ApiError{
 					Code: 100,
 					Errors: []api.ErrorItem{
 						{Code: 101},
@@ -187,7 +187,7 @@ func TestHandleErrors(t *testing.T) {
 					202: "response error 202",
 				},
 			},
-			expected: api.SynologyError{
+			expected: api.ApiError{
 				Code:    100,
 				Summary: "global error 100",
 				Errors: []api.ErrorItem{

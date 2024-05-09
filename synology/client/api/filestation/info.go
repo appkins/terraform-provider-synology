@@ -5,7 +5,7 @@ import (
 )
 
 type FileStationInfoRequest struct {
-	api.BaseRequest
+	*api.ApiRequest
 }
 
 type FileStationInfoResponse struct {
@@ -21,11 +21,7 @@ var _ api.Request = (*FileStationInfoRequest)(nil)
 
 func NewFileStationInfoRequest(version int) *FileStationInfoRequest {
 	return &FileStationInfoRequest{
-		BaseRequest: api.BaseRequest{
-			Version:   version,
-			APIName:   "SYNO.FileStation.Info",
-			APIMethod: "get",
-		},
+		ApiRequest: api.NewRequest("SYNO.FileStation.Info", "get"),
 	}
 }
 

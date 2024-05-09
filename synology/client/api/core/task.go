@@ -3,12 +3,12 @@ package core
 import "github.com/appkins/terraform-provider-synology/synology/client/api"
 
 type CreateTaskRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	SortBy     string   `synology:"sort_by"`
-	FileType   string   `synology:"file_type"`
-	CheckDir   bool     `synology:"check_dir"`
-	Additional []string `synology:"additional"`
+	SortBy     string   `form:"sort_by" url:"sort_by"`
+	FileType   string   `form:"file_type" url:"file_type"`
+	CheckDir   bool     `form:"check_dir" url:"check_dir"`
+	Additional []string `form:"additional" url:"additional"`
 }
 
 type CreateTaskResponse struct {
@@ -20,14 +20,14 @@ type CreateTaskResponse struct {
 }
 
 type ListTaskRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	SortBy     string   `synology:"sort_by"`
-	FileType   string   `synology:"file_type"`
-	CheckDir   bool     `synology:"check_dir"`
-	Additional []string `synology:"additional"`
-	GoToPath   string   `synology:"goto_path"`
-	FolderPath string   `synology:"folder_path"`
+	SortBy     string   `form:"sort_by" url:"sort_by"`
+	FileType   string   `form:"file_type" url:"file_type"`
+	CheckDir   bool     `form:"check_dir" url:"check_dir"`
+	Additional []string `form:"additional" url:"additional"`
+	GoToPath   string   `form:"goto_path" url:"goto_path"`
+	FolderPath string   `form:"folder_path" url:"folder_path"`
 }
 
 type ListTaskResponse struct {
@@ -100,7 +100,7 @@ func NewListTaskRequest(sortBy string, fileType string, checkDir bool, additiona
 		sortBy = "name"
 	}
 	return &ListTaskRequest{
-		BaseRequest: api.BaseRequest{
+		ApiRequest: api.ApiRequest{
 			Version:   2,
 			APIName:   "SYNO.FileStation.List",
 			APIMethod: "list_share",

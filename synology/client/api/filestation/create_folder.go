@@ -5,11 +5,11 @@ import (
 )
 
 type CreateFolderRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	folderPaths []string `synology:"folder_path"`
-	names       []string `synology:"name"`
-	forceParent bool     `synology:"force_parent"`
+	folderPaths []string `form:"folder_path" url:"folder_path"`
+	names       []string `form:"name" url:"name"`
+	forceParent bool     `form:"force_parent" url:"force_parent"`
 }
 
 type CreateFolderResponse struct {
@@ -26,7 +26,7 @@ var _ api.Request = (*CreateFolderRequest)(nil)
 
 func NewCreateFolderRequest(version int) *CreateFolderRequest {
 	return &CreateFolderRequest{
-		BaseRequest: api.BaseRequest{
+		ApiRequest: api.ApiRequest{
 			Version:   version,
 			APIName:   "SYNO.FileStation.CreateFolder",
 			APIMethod: "create",

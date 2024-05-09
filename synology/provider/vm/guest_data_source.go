@@ -21,7 +21,7 @@ func NewGuestDataSource() datasource.DataSource {
 }
 
 type GuestDataSource struct {
-	client client.Client
+	client client.SynologyClient
 }
 
 type GuestDataSourceModel struct {
@@ -264,7 +264,7 @@ func (d *GuestDataSource) Configure(ctx context.Context, req datasource.Configur
 		return
 	}
 
-	client, ok := req.ProviderData.(client.Client)
+	client, ok := req.ProviderData.(client.SynologyClient)
 
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -284,7 +284,9 @@ func (d *GuestDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
-	clientResponse, err := d.client.ListGuests()
+	name := data.Name.ValueString()
+
+	clientResponse, err := d.client.GetGuest(name)
 
 	if err != nil {
 		resp.Diagnostics.AddError("API request failed", fmt.Sprintf("Unable to read data source, got error: %s", err))
@@ -299,13 +301,9 @@ func (d *GuestDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		return
 	}
 
-	for _, v := range clientResponse.Guests {
-		if v.Name == data.Name.ValueString() {
-			if err := data.FromGuest(v); err != nil {
-				resp.Diagnostics.AddError("Failed to read guest data", err.Error())
-				return
-			}
-		}
+	if err := data.FromGuest(clientResponse.Guest); err != nil {
+		resp.Diagnostics.AddError("Failed to read guest data", err.Error())
+		return
 	}
 
 	if data.ID.IsNull() {

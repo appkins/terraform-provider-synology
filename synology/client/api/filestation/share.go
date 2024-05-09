@@ -1,22 +1,25 @@
 package filestation
 
-import "github.com/appkins/terraform-provider-synology/synology/client/api"
+import (
+	"github.com/appkins/terraform-provider-synology/synology/client/api"
+	"github.com/appkins/terraform-provider-synology/synology/models"
+)
 
 type CreateShareRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	SortBy     string   `synology:"sort_by"`
-	FileType   string   `synology:"file_type"`
-	CheckDir   bool     `synology:"check_dir"`
-	Additional []string `synology:"additional"`
+	SortBy     string   `query:"sort_by"`
+	FileType   string   `query:"file_type"`
+	CheckDir   bool     `query:"check_dir"`
+	Additional []string `query:"additional" del:","`
 }
 
 type CreateShareResponse struct {
 	api.BaseResponse
 
-	Offset int `mapstructure:"offset" json:"offset"`
+	Offset int `json:"offset"`
 
-	Total int `mapstructure:"total" json:"total"`
+	Total int `json:"total"`
 }
 
 func (r CreateShareResponse) ErrorSummaries() []api.ErrorSummary {
@@ -24,73 +27,22 @@ func (r CreateShareResponse) ErrorSummaries() []api.ErrorSummary {
 }
 
 type ListShareRequest struct {
-	api.BaseRequest
+	api.ApiRequest
 
-	SortBy     string   `synology:"sort_by"`
-	FileType   string   `synology:"file_type"`
-	CheckDir   bool     `synology:"check_dir"`
-	Additional []string `synology:"additional"`
-	GoToPath   string   `synology:"goto_path"`
-	FolderPath string   `synology:"folder_path"`
+	SortBy     string   `query:"sort_by"`
+	FileType   string   `query:"file_type"`
+	CheckDir   bool     `query:"check_dir"`
+	Additional []string `query:"additional" del:","`
+	GoToPath   string   `query:"goto_path"`
+	FolderPath string   `query:"folder_path"`
 }
 
 type ListShareResponse struct {
-	api.BaseResponse
+	Offset int `json:"offset"`
 
-	Offset int `mapstructure:"offset" json:"offset"`
+	Shares []models.Share `json:"shares"`
 
-	Shares []struct {
-		Name       string `mapstructure:"name" json:"name"`
-		Path       string `mapstructure:"path" json:"path"`
-		IsDir      bool   `mapstructure:"isdir" json:"isdir"`
-		Additional struct {
-			Indexed        bool   `mapstructure:"indexed" json:"indexed"`
-			IsHybridShare  bool   `mapstructure:"is_hybrid_share" json:"is_hybrid_share"`
-			IsWormShare    bool   `mapstructure:"is_worm_share" json:"is_worm_share"`
-			MountPointType string `mapstructure:"mount_point_type" json:"mount_point_type"`
-			Owner          struct {
-				Group   string `mapstructure:"group" json:"group"`
-				GroupID int    `mapstructure:"gid" json:"gid"`
-				User    string `mapstructure:"user" json:"user"`
-				UserID  int    `mapstructure:"uid" json:"uid"`
-			} `mapstructure:"owner" json:"owner"`
-			Perm struct {
-				ACL struct {
-					Append bool `mapstructure:"append" json:"append"`
-					Del    bool `mapstructure:"del" json:"del"`
-					Exec   bool `mapstructure:"exec" json:"exec"`
-					Read   bool `mapstructure:"read" json:"read"`
-					Write  bool `mapstructure:"write" json:"write"`
-				} `mapstructure:"acl" json:"acl"`
-				ACLEnable bool `mapstructure:"acl_enable" json:"acl_enable"`
-				AdvRight  struct {
-					DisableDownload bool `mapstructure:"disable_download" json:"disable_download"`
-					DisableList     bool `mapstructure:"disable_list" json:"disable_list"`
-					DisableModify   bool `mapstructure:"disable_modify" json:"disable_modify"`
-				} `mapstructure:"adv_right" json:"adv_right"`
-				IsACLMode       bool   `mapstructure:"is_acl_mode" json:"is_acl_mode"`
-				IsShareReadonly bool   `mapstructure:"is_share_readonly" json:"is_share_readonly"`
-				Posix           int    `mapstructure:"posix" json:"posix"`
-				ShareRight      string `mapstructure:"share_right" json:"share_right"`
-			} `mapstructure:"perm" json:"perm"`
-			RealPath  string `mapstructure:"real_path" json:"real_path"`
-			SyncShare bool   `mapstructure:"sync_share" json:"sync_share"`
-			Time      struct {
-				Atime  int `mapstructure:"atime" json:"atime"`
-				Crtime int `mapstructure:"crtime" json:"crtime"`
-				Ctime  int `mapstructure:"ctime" json:"ctime"`
-				Mtime  int `mapstructure:"mtime" json:"mtime"`
-			} `mapstructure:"time" json:"time"`
-			VolumeStatus struct {
-				Freespace  int64 `mapstructure:"freespace" json:"freespace"`
-				Readonly   bool  `mapstructure:"readonly" json:"readonly"`
-				Totalspace int64 `mapstructure:"totalspace" json:"totalspace"`
-			} `mapstructure:"volume_status" json:"volume_status"`
-			WormState int `mapstructure:"worm_state" json:"worm_state"`
-		} `mapstructure:"additional" json:"additional"`
-	} `mapstructure:"shares" json:"shares"`
-
-	Total int `mapstructure:"total" json:"total"`
+	Total int `json:"total"`
 }
 
 var _ api.Request = (*ListShareRequest)(nil)
@@ -104,7 +56,7 @@ func NewListShareRequest(sortBy string, fileType string, checkDir bool, addition
 		sortBy = "name"
 	}
 	return &ListShareRequest{
-		BaseRequest: api.BaseRequest{
+		ApiRequest: api.ApiRequest{
 			Version:   2,
 			APIName:   "SYNO.FileStation.List",
 			APIMethod: "list_share",

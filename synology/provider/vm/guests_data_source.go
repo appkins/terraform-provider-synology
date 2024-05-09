@@ -19,7 +19,7 @@ func NewGuestsDataSource() datasource.DataSource {
 }
 
 type GuestsDataSource struct {
-	client client.Client
+	client client.SynologyClient
 }
 
 type GuestsDataSourceModel struct {
@@ -50,7 +50,7 @@ func (d *GuestsDataSource) Configure(ctx context.Context, req datasource.Configu
 		return
 	}
 
-	client, ok := req.ProviderData.(client.Client)
+	client, ok := req.ProviderData.(client.SynologyClient)
 
 	if !ok {
 		resp.Diagnostics.AddError(

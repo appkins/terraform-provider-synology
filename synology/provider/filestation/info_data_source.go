@@ -19,7 +19,7 @@ func NewInfoDataSource() datasource.DataSource {
 }
 
 type infoDataSource struct {
-	client client.Client
+	client client.SynologyClient
 }
 
 type infoDataSourceModel struct {
@@ -69,7 +69,7 @@ func (d *infoDataSource) Configure(ctx context.Context, req datasource.Configure
 		return
 	}
 
-	client, ok := req.ProviderData.(client.Client)
+	client, ok := req.ProviderData.(client.SynologyClient)
 
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -88,7 +88,7 @@ func (d *infoDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	clientResponse := filestation.FileStationInfoResponse{}
 	clientRequest := filestation.NewFileStationInfoRequest(2)
-	if err := d.client.Do(clientRequest, &clientResponse); err != nil {
+	if err := d.client.Get(clientRequest, &clientResponse); err != nil {
 		resp.Diagnostics.AddError("API request failed", fmt.Sprintf("Unable to read data source, got error: %s", err))
 		return
 	}
