@@ -11,11 +11,11 @@ import (
 	"net/url"
 	"os"
 
-	client "github.com/appkins/terraform-provider-synology/synology/client"
-	"github.com/appkins/terraform-provider-synology/synology/client/api"
-	"github.com/appkins/terraform-provider-synology/synology/client/api/filestation"
-	"github.com/appkins/terraform-provider-synology/synology/client/util/form"
 	"github.com/google/go-querystring/query"
+	client "github.com/synology-community/synology-api/package"
+	"github.com/synology-community/synology-api/package/api"
+	"github.com/synology-community/synology-api/package/api/filestation"
+	"github.com/synology-community/synology-api/package/util/form"
 )
 
 type Options struct {

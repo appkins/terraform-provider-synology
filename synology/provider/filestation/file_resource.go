@@ -3,11 +3,11 @@ package filestation
 import (
 	"context"
 
-	client "github.com/appkins/terraform-provider-synology/synology/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	client "github.com/synology-community/synology-api/package"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.

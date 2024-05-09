@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	client "github.com/appkins/terraform-provider-synology/synology/client"
-	"github.com/appkins/terraform-provider-synology/synology/client/api/virtualization"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	client "github.com/synology-community/synology-api/package"
+	"github.com/synology-community/synology-api/package/api/virtualization"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
