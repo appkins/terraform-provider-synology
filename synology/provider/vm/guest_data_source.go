@@ -89,7 +89,7 @@ func (m GuestDataSourceModel) Value() attr.Value {
 	})
 }
 
-func (m *GuestDataSourceModel) FromGuest(v virtualization.Guest) error {
+func (m *GuestDataSourceModel) FromGuest(v *virtualization.Guest) error {
 	m.ID = types.StringValue(v.ID)
 
 	if m.Name.IsNull() {
@@ -286,22 +286,14 @@ func (d *GuestDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 	name := data.Name.ValueString()
 
-	clientResponse, err := d.client.GetGuest(name)
+	clientResponse, err := d.client.VirtualizationAPI().GetGuest(name)
 
 	if err != nil {
 		resp.Diagnostics.AddError("API request failed", fmt.Sprintf("Unable to read data source, got error: %s", err))
 		return
 	}
 
-	if !clientResponse.Success() {
-		resp.Diagnostics.AddError(
-			"Client error",
-			fmt.Sprintf("Unable to read data source, got error: %s", clientResponse.GetError()),
-		)
-		return
-	}
-
-	if err := data.FromGuest(clientResponse.Guest); err != nil {
+	if err := data.FromGuest(clientResponse); err != nil {
 		resp.Diagnostics.AddError("Failed to read guest data", err.Error())
 		return
 	}

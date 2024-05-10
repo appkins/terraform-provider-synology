@@ -51,6 +51,12 @@ func main() {
 		panic(err)
 	}
 
+	_, err = client.FileStationAPI().Download("/projects", "WireGuard-v1000-1.0.20220627.spk")
+
+	if err != nil {
+		panic(err)
+	}
+
 	_, err = client.FileStationAPI().Upload("/data/foo/bar", &form.File{Name: "main.go", Content: "package main"}, true, true)
 
 	if err != nil {

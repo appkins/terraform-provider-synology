@@ -70,18 +70,10 @@ func (d *GuestsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
-	clientResponse, err := d.client.ListGuests()
+	clientResponse, err := d.client.VirtualizationAPI().ListGuests()
 
 	if err != nil {
 		resp.Diagnostics.AddError("API request failed", fmt.Sprintf("Unable to read data source, got error: %s", err))
-		return
-	}
-
-	if !clientResponse.Success() {
-		resp.Diagnostics.AddError(
-			"Client error",
-			fmt.Sprintf("Unable to read data source, got error: %s", clientResponse.GetError()),
-		)
 		return
 	}
 
@@ -89,7 +81,7 @@ func (d *GuestsDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	for _, v := range clientResponse.Guests {
 		m := GuestDataSourceModel{}
-		if err := m.FromGuest(v); err != nil {
+		if err := m.FromGuest(&v); err != nil {
 			resp.Diagnostics.AddError("Failed to read guest data", err.Error())
 			return
 		}

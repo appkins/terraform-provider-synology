@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -120,10 +121,11 @@ func (p *SynologyProvider) Configure(ctx context.Context, req provider.Configure
 	// Example client configuration for data sources and resources
 	client, err := client.New(host, skipCertificateCheck)
 	if err != nil {
-		resp.Diagnostics.Append(diag.NewErrorDiagnostic("synology client creation failed", err.Error()))
+		resp.Diagnostics.Append(diag.NewErrorDiagnostic("synology client creation failed", fmt.Sprintf("Unable to create Synology client, got error: %v", err)))
 	}
-	if err := client.Login(user, password, "webui"); err != nil {
-		resp.Diagnostics.Append(diag.NewErrorDiagnostic("login to Synology station failed", err.Error()))
+
+	if _, err := client.Login(user, password, ""); err != nil {
+		resp.Diagnostics.Append(diag.NewErrorDiagnostic("login to Synology station failed", fmt.Sprintf("Unable to login to Synology station, got error: %s", err)))
 	}
 
 	resp.DataSourceData = client
@@ -131,7 +133,9 @@ func (p *SynologyProvider) Configure(ctx context.Context, req provider.Configure
 }
 
 func (p *SynologyProvider) Resources(ctx context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+	return []func() resource.Resource{
+		filestation.NewFileResource,
+	}
 }
 
 func (p *SynologyProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
