@@ -158,7 +158,36 @@ func (f *FileResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 // Update implements resource.Resource.
 func (f *FileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data FileResourceModel
 
+	// Read Terraform configuration data into the model
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	file := form.File{
+		Name:    data.Name.ValueString(),
+		Content: data.Content.ValueString(),
+	}
+
+	// Check if the file exists
+
+	// If it exists, check the MD5 checksum
+
+	// If the checksums match, return
+
+	// Upload the file
+	_, err := f.client.FileStationAPI().Upload(
+		data.Path.ValueString(),
+		&file, data.CreateParents.ValueBool(),
+		true)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to upload file", fmt.Sprintf("Unable to upload file, got error: %s", err))
+		return
+	}
+
+	// Get the file's MD5 checksum
+	// md5, err := f.client.FileStationAPI().GetMD5(data.Path.ValueString(), data.Name.ValueString())
+
+	// Store the MD5 checksum in the state
 }
 
 // Metadata implements resource.Resource.
