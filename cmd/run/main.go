@@ -2,11 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"net/url"
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/google/go-querystring/query"
 	client "github.com/synology-community/synology-api/package"
 	"github.com/synology-community/synology-api/package/util/form"
 )
@@ -31,41 +29,11 @@ type FileTest struct {
 	File File `form:"file" kind:"file"`
 }
 
-func tst() {
-
-	c := FileTest{
-		Api:     "SYNO.FileStation.Upload",
-		Version: "2",
-		Method:  "upload",
-		File: File{
-			Name:    "main.go",
-			Content: "package main",
-		},
-	}
-
-	if res, err := form.Marshal(&c); err != nil {
-		log.Fatal(err)
-	} else {
-		log.Info(string(res))
-		// multipart.File
-	}
-
-	opt := Options{"foo", true, 2, []int{1, 2, 3}}
-	v, _ := query.Values(opt)
-	s := v.Encode() // will output: "q=foo&all=true&page=2"
-	log.Info(url.QueryUnescape(s))
-
-}
-
 func main() {
 
-	log.SetFormatter(&log.JSONFormatter{})
+	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true, ForceColors: true})
 
 	log.Info("Starting")
-
-	// tst()
-
-	// return
 
 	host := "https://appkins.synology.me:5001" // os.Getenv("SYNOLOGY_HOST")
 	user := "terraform"                        // os.Getenv("SYNOLOGY_USER")
@@ -93,18 +61,20 @@ func main() {
 		panic(err)
 	}
 
-	listGuestResp, err := client.VirtualizationAPI().ListGuests()
-
+	lgr, err := client.VirtualizationAPI().ListGuests()
 	if err != nil {
-		panic(err)
+		log.Error(err)
 	}
 
-	listGuestRespBytes, _ := json.Marshal(listGuestResp)
+	for _, guest := range lgr.Guests {
+		var gm map[string]interface{}
+		gb, _ := json.Marshal(&guest)
+		err = json.Unmarshal(gb, &gm)
+		if err != nil {
+			log.Error(err)
+		}
+		log.WithFields(gm).Infof("Guest %s", guest.Name)
 
-	println(string(listGuestRespBytes))
-
-	for _, guest := range listGuestResp.Guests {
-		println(guest.Name)
 	}
 
 	createFolder(client)

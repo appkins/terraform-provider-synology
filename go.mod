@@ -5,16 +5,18 @@ replace github.com/synology-community/synology-api => /Users/atkini01/src/synolo
 go 1.22.3
 
 require (
-	github.com/google/go-querystring v1.1.0
 	github.com/hashicorp/terraform-plugin-framework v1.8.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
 	github.com/hashicorp/terraform-plugin-testing v1.7.0
 	github.com/iancoleman/strcase v0.3.0
+	github.com/kdomanski/iso9660 v0.4.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/synology-community/synology-api v0.0.0-20240509203437-c30ab952872a
 )
 
 require (
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 )
