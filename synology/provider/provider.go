@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 
@@ -33,8 +34,8 @@ var _ provider.Provider = &SynologyProvider{}
 // SynologyProvider defines the provider implementation.
 type SynologyProvider struct{}
 
-// providerModel describes the provider data model.
-type providerModel struct {
+// SynologyProviderModel describes the provider data model.
+type SynologyProviderModel struct {
 	Host          types.String `tfsdk:"host"`
 	User          types.String `tfsdk:"user"`
 	Password      types.String `tfsdk:"password"`
@@ -73,7 +74,7 @@ func (p *SynologyProvider) Schema(ctx context.Context, req provider.SchemaReques
 }
 
 func (p *SynologyProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data providerModel
+	var data SynologyProviderModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -143,6 +144,24 @@ func (p *SynologyProvider) DataSources(ctx context.Context) []func() datasource.
 		filestation.NewInfoDataSource,
 		vm.NewGuestDataSource,
 		vm.NewGuestsDataSource,
+	}
+}
+
+func (p *SynologyProvider) ValidateConfig(ctx context.Context, req provider.ValidateConfigRequest, resp *provider.ValidateConfigResponse) {
+	var data SynologyProviderModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if _, err := url.Parse(data.Host.ValueString()); err != nil {
+		resp.Diagnostics.Append(diag.NewAttributeErrorDiagnostic(
+			path.Root("host"),
+			"invalid provider configuration",
+			"host is not a valid URL"))
+		return
 	}
 }
 
